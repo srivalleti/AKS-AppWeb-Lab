@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ratings-web
+spec:
+  selector:
+    matchLabels:
+      app: ratings-web   # the label for the pods and the deployments
+  template:
+    metadata:
+      labels:
+        app: ratings-web 
+    spec:
+      containers:
+      - name: ratings-web
+        image: <acr-name>.azurecr.io/ratings-web:v1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080   # the application listens to this port
+        env:
+        - name: API   # the application expects to connect to the API at this endpoint
+          value: http://ratings-api.ratingsapp.svc.cluster.local
+       
