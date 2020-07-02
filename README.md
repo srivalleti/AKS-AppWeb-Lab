@@ -1,5 +1,5 @@
 # AKS-AppWeb-Lab
-This lab show how to create a web application that consist of Frontend, API and a database "Mongodb" based on kubernetes deployments on an AKS cluster, to perform this lab follow these steps: </br>
+This lab shows how to create a web application that consist of Frontend, API and a database "Mongodb" based on kubernetes deployments on an AKS cluster, to perform this lab follow these steps: </br>
 > ## prerequisite before starting the lab
 > 
 > 1.   Azure Account (get it for free for 12 months with 200$ of credit to consume the first month of the subscription if do not have one already). [Azure free account](https://azure.microsoft.com/en-us/free/)
@@ -16,5 +16,7 @@ This lab show how to create a web application that consist of Frontend, API and 
 6. Configure monitoring for the application 
 7. Configure scaling to handle high demand
 8. cleanup resources 
+
+This is how the deployment will look like 
 
 ![result](https://docs.microsoft.com/en-us/learn/modules/aks-workshop/media/02-arch.svg)
