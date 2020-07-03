@@ -1,0 +1,20 @@
+Before any deployment, the AKS cluster must be created and set. README.md contain all instructions to create a cluster.
+
+-------------------------
+/ connect to the Azure account
+az login 
+---> a browser shows up to enter Azure subscription credentials
+
+/ connect to the cluster through Azure CLI or Cloud Shell
+az aks get-credentials --resource-group $RGNAME --name $AKSNAME
+---> this command will merge the cluster API to the cloud Shell or Azure CLI 
+
+/ get kubectl version 
+kubectl version
+
+/ get namespaces
+kubectl get namespace 
+
+/ get nodes that consist of AKS nodepool
+kubectl get nodes
+

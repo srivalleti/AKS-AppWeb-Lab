@@ -1,0 +1,50 @@
+
+----------------------------------------------------------------------------------------------
+Mongodb deployment 
+----------------------------------------------------------------------------------------------
+
+/// to deploy Mongodb use Helm to install the Mongodb chart
+/// Helm is an application package manager for Kubernetes. It offers a way to easily deploy applications and services using charts
+/// A chart is a collection of files that describe a related set of Kubernetes resources
+/// Mongodb chart is provided by Bitnami to easily deploy a mongodb service on Kubernetes
+/// helm is already installed in Azure CLI and Cloud Shell
+
+/ add Bitnami repository 
+helm repo add bitnami https://charts.bitnami.com/bitnami
+
+/check repo 
+helm search repo bitnami
+---> list all charts Bitnami provide
+
+
+/// chart require some parameters to install it 
+
+/ create namespace for the web app components
+kubectl create namespace ratingsapp
+
+/ install mongodb chart
+helm install ratings bitnami/mongodb \
+    --namespace ratingsapp \
+    --set mongodbUsername=<username>,mongodbPassword=<password>,mongodbDatabase=ratingsdb
+
+---> parameters are provided with the --set comma-separated list of key=value pairs
+---> this outputs some notes to manage Mongodb after its creation
+---> The application expects that the database is called "ratingsdb"
+---> if all parmeters are same the mongodb host is "ratings-mongodb.ratingsapp.svc.cluster.local"
+
+
+/// kubernetes secrets allow to save sensitive information to avoid writing them in a pod definition or container image 
+/// the kubernetes secret can hold several items indexed by a key, here we have only one secert indexed by MONGOCONNECTION 
+/// as seen in the README.md file, the rating-API is connected to Mongodb using the following connection 
+/// "mongodb://<username>:<password>@ratings-mongodb.ratingsapp:27017/ratingsdb"
+
+/ create the secret to hold the mongodb connection 
+kubectl create secret generic mongosecret \
+    --namespace ratingsapp \
+    --from-literal=MONGOCONNECTION="mongodb://<username>:<password>@ratings-mongodb.ratingsapp:27017/ratingsdb"
+---> replace the username and password with your own
+
+/// to see detail about a kubernetes resource use the "kubectl describe"
+
+/ describe the secret 
+kubectl describe secret mongosecret --namespace ratingsapp
