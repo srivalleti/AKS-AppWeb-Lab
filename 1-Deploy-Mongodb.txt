@@ -16,9 +16,6 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 helm search repo bitnami
 ---> list all charts Bitnami provide
 
-
-/// chart require some parameters to install it 
-
 / create namespace for the web app components
 kubectl create namespace ratingsapp
 
@@ -30,7 +27,7 @@ helm install ratings bitnami/mongodb \
 ---> parameters are provided with the --set comma-separated list of key=value pairs
 ---> this outputs some notes to manage Mongodb after its creation
 ---> The application expects that the database is called "ratingsdb"
----> if all parmeters are same the mongodb host is "ratings-mongodb.ratingsapp.svc.cluster.local"
+---> if all parmeters are same the mongodb host is "ratings-mongodb.ratingsapp.svc.cluster.local" a,d that is the DNS name of the service created with the mongodb chart
 
 
 /// kubernetes secrets allow to save sensitive information to avoid writing them in a pod definition or container image 
@@ -48,3 +45,10 @@ kubectl create secret generic mongosecret \
 
 / describe the secret 
 kubectl describe secret mongosecret --namespace ratingsapp
+
+/// check that untill now a deplotment, service, pod and a secret are created
+
+kubectl get deploy -n ratingsapp
+kubectl get svc -n ratingsapp
+kubectl get pod -n ratingsapp
+kubectl get secret -n ratingsapp

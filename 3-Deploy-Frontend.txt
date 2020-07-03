@@ -1,0 +1,40 @@
+----------------------------------------------------------------------------------------------
+Frontend deployment 
+----------------------------------------------------------------------------------------------
+
+/// in the AKS cluster creation, an ACR is created and attached to that cluster, it contains our API and Frontend docker images
+/// here is the source code of the frontend coded with Node.js https://github.com/MicrosoftDocs/mslearn-aks-workshop-ratings-web
+
+/ clone the Frontend source code
+cd ~
+git clone https://github.com/MicrosoftDocs/mslearn-aks-workshop-ratings-web.git
+cd mslearn-aks-workshop-ratings-web
+
+/// Azure ACR provide the possibility to build Dockerfile and to store them in the registry
+
+/ build the Dockerfile to get the image 
+az acr build \
+    --resource-group $RESOURCE_GROUP \
+    --registry $ACR_NAME \
+    --image ratings-web:v1 .
+
+/ check the image 
+az acr repository list --name $ACR_NAME --output table
+
+// once built, use it to deploy the ratings-web deployment. In the ratings-web-deployment.yml replace the <acrname> with the ACR name in template/spec/containers/image subsection
+// read the ratings-web-deployment.yml file and see that an environment variable named "API" is set and referenced with the API DNS service  
+/ create the deployment through ratings-web-deployment.yml file 
+kubectl apply --namespace ratingsapp -f ratings-web-deployment.yml
+
+// read the file ratings-web-service.yml and see that the container ports 8080 are exposed with port 80 to be reachable from inside the cluster  
+/ expose the ratings-web through a ClusterIP service
+kubectl apply --namespace ratingsapp -f ratings-web-service.yml
+
+/ check the pods deployment
+kubectl get pods --namespace ratingsapp -l app=ratings-web 
+kubectl get deploy --namespace ratingsapp -l app=ratings-web 
+
+/check the service  
+kubectl get service ratings-web --namespace ratingsapp
+kubectl get endpoints ratings-web --namespace ratingsapp
+---> here the cluser IP field in the output shows an IP address and shows none for the External IP because the service is ClusterIP type

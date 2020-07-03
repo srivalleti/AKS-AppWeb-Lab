@@ -1,0 +1,36 @@
+----------------------------------------------------------------------------------------------
+API deployment 
+----------------------------------------------------------------------------------------------
+
+/// in the AKS cluster creation, an ACR is created and attached to that cluster, it contains our API and Frontend docker images
+/// here is the source code of the API coded with Node.js https://github.com/MicrosoftDocs/mslearn-aks-workshop-ratings-api
+
+/ clone the ratings-web source code
+cd ~
+git clone https://github.com/MicrosoftDocs/mslearn-aks-workshop-ratings-api.git
+cd mslearn-aks-workshop-ratings-web
+
+/// Azure ACR provide the possibility to build Dockerfile and to store them in the registry
+
+/ build the Dockerfile to get the image 
+az acr build \
+    --resource-group $RESOURCE_GROUP \
+    --registry $ACR_NAME \
+    --image ratings-web:v1 .
+
+/ check the image 
+az acr repository list --name $ACR_NAME --output table
+
+// once built, use it to deploy the ratings-api deployment. In the ratings-api-deployment.yaml replace the <acrname> with the ACR name in template/spec/containers/image subsection
+// read the ratings-api-deployment.yaml file and see that an environment variable named "MONGODB_URI" is set and referenced with the mongodb connection string 
+/ create the deployment through ratings-api-deployment.yaml file 
+kubectl apply --namespace ratingsapp -f ratings-api-deployment.yaml
+
+// read the file ratings-api-service.yaml and see that the container ports 3000 are exposed with port 80 to be reachable from inside the cluster  
+/ expose the ratings-api through a ClusterIP service
+kubectl apply --namespace ratingsapp -f ratings-api-service.yaml
+
+/check the service installation 
+kubectl get service ratings-api --namespace ratingsapp
+kubectl get endpoints ratings-api --namespace ratingsapp
+---> here the cluser IP field in the output shows an IP address and shows none for the External IP because the service is ClusterIP type
