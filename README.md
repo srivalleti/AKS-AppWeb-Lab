@@ -5,7 +5,7 @@ This lab shows how to create a web application that consist of Frontend, API and
 > 1.   Azure Account (get it for free for 12 months with 200$ of credit to consume the first month of the subscription if do not have one already). [Azure free account](https://azure.microsoft.com/en-us/free/)
 > 2.   AKS cluster ready for use, three ways to do it:
 >       * using the portal (easy way with less details) [build AKS cluster using the portal](https://docs.microsoft.com/en-us/azure/aks/kubernetes-walkthrough-portal)
->       * using the Cloud Shell or Azure CLI, follow this link to do so 
+>       * using the Cloud Shell or Azure CLI, follow this link to do so [create AKS cluster with Azure CLI](https://github.com/alli40alli/AKS-AppWeb-Lab/blob/master/AKS-creation-CLI.txt)
 >       * using one of the IaC tools like Terraform, follow this link to do so [build AKS with Terraform](https://github.com/alli40alli/TerraformAzureKubernetesServices)
 
 1. Deploy MongoDB
