@@ -1,0 +1,52 @@
+WORKSPACE= <your workspace name>
+
+RESOURCE_GROUP = <your resource group name>
+
+REGION_NAME = <region>
+
+az group create -n $RESOURCE_GROUP -l $REGION_NAME
+
+/ create the service principal to assign to the AKS cluster 
+az ad sp create-for-rbac -n "MySPNforAKS"
+---> note the app ID 
+MyNewServicePrincipalID =$(az ad sp show --id "app ID" --query "id" -o tsv)
+
+/ create the Azure Container Registry to attach to the cluster 
+az acr create -n MyRegistry -g $RESOURCE_GROUP --sku Standard
+
+/ create the log analytics workspace to join to the cluster 
+az resource create --resource-type Microsoft.OperationalInsights/workspaces \
+        --name $WORKSPACE \
+        --resource-group $RESOURCE_GROUP \
+        --location $REGION_NAME \
+        --properties '{}' -o table
+
+/ save the workspace id in a bash variable
+WORKSPACE_ID=$(az resource show --resource-type Microsoft.OperationalInsights/workspaces \
+    --resource-group $RESOURCE_GROUP \
+    --name $WORKSPACE \
+    --query "id" -o tsv)
+
+/ create the cluster 
+az aks create \
+	-g $RESOURCE_GROUP \
+	-n my-cluster \
+	-u alli50alli \
+	--dns-name-prefix <your unique DNS prefix> \
+	--dns-service-ip 10.0.0.10 \
+	--enable-addons monitoring \
+ 	--workspace-resource-id $WORKSPACE_ID  \
+	--service-principal MyNewServicePrincipalID \
+	--generate-ssh-keys \
+	-k 1.15.11 \
+	--load-balancer-sku standard \
+	-l $REGION_NAME \
+	--network-plugin azure \
+	--network-policy calico \
+	-c 2 \
+	-s Standard_D2s_v3 \
+    --vnet-subnet-id 10.2.0.0/16\
+	--service-cidr 10.0.0.0/16 \
+	--vm-set-type VirtualMachineScaleSets \
+	-z {1,2,3}
+
