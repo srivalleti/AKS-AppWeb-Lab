@@ -1,0 +1,22 @@
+----------------------------------------------------------------------------------------------
+configure monitoring 
+----------------------------------------------------------------------------------------------
+
+/// Azure allows AKS monitoring and log analysis by providing log analytics addons, by following the instructions to deploy AKS, we added the log analytics workspace with AKS add-on to configure monitoring
+/// This solution gives you insight into the performance of your cluster by collecting memory and processor metrics from controllers, nodes, and containers.
+
+/ now we can collect logs and metrics related to nodes, controllers and pods (system pods and user pods) in Azure Monitor
+/1. Select "Azure Monitor" from the left pane in the Azure portal.
+/2. Under the "Insights" section, select "Containers" to see a list of all clusters that you have access to
+/3. Select the "Cluster tab" at the top of the view to check the cluster utilization. Notice how this view is again a high-level view that provides you a view on the cluster, nodes, controllers, and containers
+
+/// to have access to logs, it's mondatory to have the wright to access through kubernetes roles (Role Based Access Control)
+/// we have to create a ClusterRole and bind (associate) the ClusterRole to a user in order to grant him access to view logs
+
+/ create the ClusterRole and the ClusterRoleBinding
+kubectl apply -f logreader-rbac.yaml
+
+/1. Switch back to the AKS cluster in the Azure portal.
+/2. Select Insights under Monitoring.
+/3. Select the Controllers tab, and choose a container to view its live logs or event logs. For example, choose the ratings-api container. The new view allows you to debug the status of the container.
+/// now we can watch live logs 

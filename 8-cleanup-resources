@@ -1,0 +1,7 @@
+----------------------------------------------------------------------------------------------
+cleanup resources
+----------------------------------------------------------------------------------------------
+
+/// when you're sure you finished the lab and to avoid get billed on aks resources clean up resources 
+/ delete the resource group that contain all lab resources
+az group delete -n $RG-NAME 

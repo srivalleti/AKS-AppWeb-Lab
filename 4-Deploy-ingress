@@ -28,8 +28,8 @@ kubectl get service nginx-ingress-controller --namespace ingress
 ---> notice here that the EXTERNAL IP is given a Public IP it means that the service type is set to "LoadBalancer" 
 
 / create the ingress in "ratingsapp" namespace 
-kubectl apply --namespace ratingsapp -f ratings-web-ingress.yaml
----> in the 'rules' field we match the ingress controller with backend that is the frontend
+kubectl apply --namespace ratingsapp -f ratings-web-ingress1.yml
+---> in the 'rules' field we match the ingress controller with backend that is the frontend, thus, it will send http requests to the ratings-web 
 
 
 ---> the web app is now reachable via the browser through "http://frontend.13-68-177-68.nip.io" set your EXTERNAL IP address resulted in the last command 

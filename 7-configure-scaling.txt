@@ -1,0 +1,52 @@
+----------------------------------------------------------------------------------------------
+configure scaling
+----------------------------------------------------------------------------------------------
+
+/// kubernetes HPA (Horizontal Pods Autoscaling) is a kubernetes resource that offers the possibility to configure auto-scalig depnding on resource metrics (CPU, Memory,...)
+
+/ see the file ratings-api-hpa.yaml and notice that we add the ratings-api deployment as a target to apply the autoscaler on
+/ the resource field describe the metrics that trigger the scale "CPU utilization" in our example
+/ the max pod are 10 the minimum is 1
+/ IMPRTANT: to make this solution work we must take off replica field in the deployment configuration YAML file 
+
+/ apply the HPA
+kubectl apply --namespace ratingsapp -f ratings-api-hpa.yaml
+
+/// the Azure autoscaler for AKS cluster work in combination with kubernetes HPA, the more Pods added by HPA, the more resources are consumed; when the cluser run out of resources the autoscaler add nodes to the cluster 
+
+-----------------
+test the HPA
+-----------------
+
+/ To create the load test, you can use a prebuilt image called azch/artillery that's available on Docker hub. The image contains a tool called artillery that's used to send traffic to the API
+/ Azure Container Instances can be used to run this image as a container.
+/ When it runs as a container instance set, you don't want it to restart after it has finished. Use the --restart-policy parameter and set the value to Never to prevent the restart, we'll see that in following config.
+
+/ store the front-end API load test endpoint in a Bash variable and replace <frontend hostname> with your exposed ingress host name, for example, https://frontend.13-68-177-68.nip.io.
+LOADTEST_API_ENDPOINT=https://<frontend hostname>/api/loadtest
+---> the front-end API host is stored in LOADTEST_API_ENDPOINT bash variable
+
+/ create a container that launch a load test on the specified host ,"LOADTEST_API_ENDPOINT" in our example, that will increase workload to make the system scale out
+az container create \
+    -g $RESOURCE_GROUP \
+    -n loadtest \
+    --cpu 4 \
+    --memory 1 \
+    --image azch/artillery \
+    --restart-policy Never \
+    --command-line "artillery quick -r 500 -d 120 $LOADTEST_API_ENDPOINT"
+
+/ list the pods are controlled by HPA
+kubectl get hpa --namespace ratingsapp -w
+---> we'll see that there is duplicated ratings-api pods due to the increased workload that makes them scale out
+
+/// apply the autoscaler to the AKS cluster providing the possibility of adding nodes when needed
+/ update the AKS 
+az aks update \
+    --resource-group $RESOURCE_GROUP \
+    --name $AKS_CLUSTER_NAME  \     
+    --enable-cluster-autoscaler \
+    --min-count 3 \
+    --max-count 5
+
+---> now the cluster is able to add more nodes as the pods get multiplied by the HPA when the workload increase 

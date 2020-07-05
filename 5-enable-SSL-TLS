@@ -1,0 +1,51 @@
+----------------------------------------------------------------------------------------------
+certification manager 
+----------------------------------------------------------------------------------------------
+
+/// cert-manager is a Kubernetes certificate management controller that makes it possible to automate certificate management in cloud-native environments
+/// use Custom Resource Definition to install cert-manager & cert-manager chart provided in jetstack repository 
+/// 
+
+/ create the cert-manager namespace 
+kubectl create namespace cert-manager
+
+/ add jetstack repository
+helm repo add jetstack https://charts.jetstack.io
+
+/ update the repo
+helm repo update
+
+/ apply the Custom Resource Definition 
+kubectl apply --validate=false -f https://raw.githubusercontent.com/jetstack/cert-manager/release-0.14/deploy/manifests/00-crds.yaml
+
+/ install cert-manager helm chart 
+helm install cert-manager \
+    --namespace cert-manager \
+    --version v0.14.0 \
+    jetstack/cert-manager
+
+/ list cert-manager pods 
+kubectl get pods --namespace cert-manager
+
+/// the cert-manager is installed, now, install the certificate issuer to be able to generate a certificate and validate the web app
+/// "let's Encrypt" is a certificate issuer that allows to set up an HTTP server and have it automatically obtain a browser-trusted certificate
+
+/ take a look to "cluster-issuer.yaml" and replace the email field by an existing email
+/ install the certificate issuer 
+
+kubectl apply \
+    --namespace ratingsapp \
+    -f cluster-issuer.yaml
+
+/// add the cluster issuer and the "tls" field in the ingress to generate a certificate for the web app
+/// the lines to add are the differences between ratings-web-ingress1.yml and ratings-web-ingress2.yml
+/// or just delete the ratings-web-ingress1.yml configuration "kubectl delete -f ratings-web-ingress1.yml -n ratingsapp"
+/// and deploy the ingress with ratings-web-ingress2.yml configuration 
+/// IMPORTANT: do not forget the public IP address in the file 
+
+/ describe the issued certificate 
+kubectl describe cert ratings-web-cert --namespace ratingsapp
+---> all details about the certificate 
+
+---> we can see now that the web app is now reachable over HTTPS through https://frontend.13-68-177-68.nip.io and we can see through the browse the 
+---> certification validation and issuer details
