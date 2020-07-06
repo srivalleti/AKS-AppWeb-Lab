@@ -7,9 +7,9 @@ REGION_NAME = <region>
 az group create -n $RESOURCE_GROUP -l $REGION_NAME
 
 / create the service principal to assign to the AKS cluster 
-az ad sp create-for-rbac -n "MySPNforAKS"
+az ad sp create-for-rbac -n "MySPforAKS"
 ---> note the app ID 
-MyNewServicePrincipalID =$(az ad sp show --id "app ID" --query "id" -o tsv)
+MyNewServicePrincipalID =$(az ad sp show --id <app ID> --query "id" -o tsv)
 
 / create the Azure Container Registry to attach to the cluster 
 az acr create -n MyRegistry -g $RESOURCE_GROUP --sku Standard
